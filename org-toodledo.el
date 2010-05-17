@@ -611,4 +611,25 @@
 
 
 
+(defun org-toodledo-touch-all-modified-task ()
+  "Update All modified task.
+This function require global-highlight-changes-mode. "
+  (when (and (string= mode-name "Org") global-highlight-changes-mode)
+    (save-excursion
+      (goto-char (point-min))
+      (while (integerp (highlight-changes-next-change))
+        (org-toodledo-touch)))
+    (highlight-changes-remove-highlight (point-min) (point-max))))
+
+(add-hook 'before-save-hook 'org-toodledo-touch-all-modified-task)
+(add-hook 'org-mode-hook '(lambda () (global-highlight-changes-mode t)))
+
+;; This function ports by Sacha's org-toodledo.el.
+;; URL: http://github.com/sachac/org-toodledo
+(defun org-toodledo-touch ()
+  "Update the current task."
+  (interactive)
+  (org-entry-put (point) "Modified" (format "%d" (float-time (current-time)))))
+
+
 (provide 'org-toodledo)
